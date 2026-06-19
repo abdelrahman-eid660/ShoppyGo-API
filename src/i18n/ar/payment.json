@@ -1,0 +1,6 @@
+{
+  "paymentSuccess": "تم الدفع بنجاح",
+  "paymentFailed": "فشلت عملية الدفع",
+  "refundSuccess": "تم استرداد المبلغ بنجاح",
+  "invalidPaymentMethod": "وسيلة الدفع غير صالحة"
+}

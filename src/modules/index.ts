@@ -1,0 +1,5 @@
+export * from './authentication/authentication.module'
+export * from './brand/brand.module'
+export * from './category/category.module'
+export * from './user/user.module'
+export * from './product/product.module'

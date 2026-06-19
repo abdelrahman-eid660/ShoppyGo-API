@@ -1,0 +1,6 @@
+{
+  "orderCreated": "تم إنشاء الطلب بنجاح",
+  "orderCancelled": "تم إلغاء الطلب بنجاح",
+  "orderDelivered": "تم تسليم الطلب بنجاح",
+  "orderNotFound": "الطلب غير موجود"
+}

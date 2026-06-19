@@ -1,0 +1,7 @@
+{
+  "productCreated": "تم إنشاء المنتج بنجاح",
+  "productUpdated": "تم تحديث المنتج بنجاح",
+  "productDeleted": "تم حذف المنتج بنجاح",
+  "outOfStock": "المنتج غير متوفر بالمخزون",
+  "productNotFound": "المنتج غير موجود"
+}

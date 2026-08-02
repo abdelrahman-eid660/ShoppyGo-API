@@ -13,6 +13,8 @@ export interface ICategory {
   createdAt?: Date;
   updatedAt?: Date;
 
+  isPublished : boolean
+  
   createdBy: Types.ObjectId | IUser
   updatedBy?: Types.ObjectId | IUser
   

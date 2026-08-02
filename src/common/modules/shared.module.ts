@@ -1,14 +1,16 @@
-import { UserModel } from 'src/DB/models';
-import { CacheService, TokenService } from '../service';
+import { NotificationModel, ProductVariantModel, StockAlertModel, UserModel } from 'src/DB/models';
+import { CacheService, FCMRedisService, FCMService, TokenService } from '../service';
 import { createClient } from 'redis';
-import { UserRepository } from 'src/DB/Repository';
+import { NotificationRepository, ProductVariantRepository, StockAlertRepository, UserRepository } from 'src/DB/Repository';
 import { JwtService } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TranslationService } from 'src/common/service';
+import { NotificationsListener, StockAlertListener } from '../listener';
+import { RealtimeGetway } from 'src/modules/realtime';
 
 @Module({
-  imports: [UserModel],
+  imports: [UserModel , NotificationModel , StockAlertModel , ProductVariantModel],
   exports: [
     'REDIS_CLIENT',
     TokenService,
@@ -16,6 +18,14 @@ import { TranslationService } from 'src/common/service';
     CacheService,
     UserRepository,
     TranslationService,
+    StockAlertRepository,
+    NotificationRepository,
+    NotificationsListener,
+    RealtimeGetway,
+    StockAlertListener,
+    FCMRedisService,
+    FCMService,
+    ProductVariantRepository
   ],
   providers: [
     {
@@ -36,6 +46,14 @@ import { TranslationService } from 'src/common/service';
     TokenService,
     JwtService,
     TranslationService,
+    StockAlertRepository,
+    NotificationRepository,
+    NotificationsListener,
+    RealtimeGetway,
+    StockAlertListener,
+    FCMService,
+    FCMRedisService,
+    ProductVariantRepository
   ],
 })
 export class SharedAuthenticationModule {}

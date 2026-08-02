@@ -25,7 +25,7 @@ export class SecurityService {
     }
     const ivLIKEBinary = Buffer.from(iv, 'hex');
     const decipherIV = createDecipheriv(
-      'aes-128-cbc',
+      'aes-256-cbc',
       String(this.configService.get('ENCRYPTION_SECRET_KEY')),
       ivLIKEBinary
     );

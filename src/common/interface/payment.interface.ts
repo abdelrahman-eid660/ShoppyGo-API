@@ -1,21 +1,30 @@
 import { Types } from "mongoose";
-import { PaymentStatusEnum, ProviderPaymentEnum } from "../enum";
+import { CurrencyEnum, PaymentMethodEnum, PaymentStatusEnum, ProviderPaymentEnum } from "../enum";
+import { IUser } from "./user.interface";
+import { IOrder } from "./order.interface";
 
 export interface IPayment {
-  orderId: Types.ObjectId;
-  userId: Types.ObjectId;
-
+  orderId: Types.ObjectId | IOrder;
+  createdBy: Types.ObjectId | IUser;
+  isSystemAction? : boolean
+  updatedBy?: Types.ObjectId | IUser;
+  
   amount: number;
-
-  currency: string;
-
+  refundedAmount?: number;
+  
+  currency: CurrencyEnum;
   status: PaymentStatusEnum;
+  provider: ProviderPaymentEnum
+  
+  intentId?: string; 
+  
+  paymentMethodType?: PaymentMethodEnum; 
 
-  provider: ProviderPaymentEnum;
-
-  transactionId?: string;
-
-  paidAt?: Date
-
+  failureReason?: string; 
+  
+  metadata?: Record<string, any>; 
+  
+  paidAt?: Date;
   createdAt: Date;
+  updatedAt: Date;
 }

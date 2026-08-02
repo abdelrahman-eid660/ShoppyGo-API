@@ -3,10 +3,15 @@ import { AppModule } from './app.module';
 import { port } from './config';
 import { ValidationPipe } from '@nestjs/common';
 import { LanguageIntercaptor, ResponseInterceptor } from './common/interceptor';
-
+import * as express from 'express'
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors()
+  app.use(helmet({crossOriginResourcePolicy: { policy: 'cross-origin' }}));
+  app.use(cookieParser());
+  app.enableCors({origin : "*" , credentials: true})
+  app.use("/order/webhook" , express.raw({type : 'application/json'}))
   app.useGlobalInterceptors(new LanguageIntercaptor() , new ResponseInterceptor())
   app.useGlobalPipes(
     new ValidationPipe({
@@ -16,6 +21,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     })
   );
+  
   await app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });

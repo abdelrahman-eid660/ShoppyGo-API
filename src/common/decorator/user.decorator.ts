@@ -13,7 +13,7 @@ export const User = createParamDecorator(
         break;
       case 'graphql':
         const gqlContext = GqlExecutionContext.create(context);
-        user = gqlContext.getContext().user;
+        user = gqlContext.getContext().req.user;
         break;
       default:
       case 'http':

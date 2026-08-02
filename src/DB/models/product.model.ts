@@ -27,7 +27,7 @@ class ProductAttribute {
   strict: true,
   strictQuery: true,
 })
-export class Product implements IProduct {
+export class Product implements Partial<IProduct> {
     @Prop({ type: String, unique: true, index: true, required: true,minLength: 2,maxLength: 50})
     title!: string;
     @Prop({ type: String,minLength: 2,maxLength: 5000})
@@ -46,6 +46,8 @@ export class Product implements IProduct {
     createdBy!: Types.ObjectId;
     @Prop({ type: Types.ObjectId, ref: 'User'})
     updatedBy!: Types.ObjectId;
+    @Prop({ type: Boolean, default : false})
+    isPublished?: boolean;
     @Prop({ type: [ProductAttribute] })
     attributes?: IProductAttribute[];
     @Prop({type : Number , min : 0 , max : 5})
@@ -61,7 +63,9 @@ export const ProductSchema = SchemaFactory.createForClass(Product)
 export const ProductModel = MongooseModule.forFeatureAsync([
     {
         name : Product.name,
-        useFactory() {
+        useFactory:() =>{
+          ProductSchema.pre('save' , function(){
+          })
             ProductSchema.pre(['find', 'findOne', 'countDocuments'], function () {
                     const query = this.getQuery();
                     if (query.paranoid === false) {

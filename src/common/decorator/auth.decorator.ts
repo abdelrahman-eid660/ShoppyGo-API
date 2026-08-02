@@ -3,17 +3,24 @@ import { TokenTypeDecorator } from './tokenType.decorator';
 import { PermissionEnum, RoleEnum, RolePermissions, TokenTypeEnum } from '../enum';
 import { PermissionsDecorator, RolesDecorator } from './roles.decorator';
 import { AuthenticationGuard, AuthorizationGuard } from '../guard';
+import { Public } from './public.decorator';
 
 export const Auth = ({
   tokenType = TokenTypeEnum.ACCESS,
-  roles = [RoleEnum.USER],
+  roles = Object.values(RoleEnum),
+  isPublic = false
 }: {
   tokenType?: TokenTypeEnum;
-  roles?: RoleEnum[];
+  roles?: RoleEnum[],
+  isPublic? : boolean
 }) => {
-  return applyDecorators(
+  const decorators = [
     TokenTypeDecorator(tokenType),
     RolesDecorator(...roles),
     UseGuards(AuthenticationGuard, AuthorizationGuard)
-  );
+  ]
+  if (isPublic) {
+    decorators.push(Public())
+  }
+  return applyDecorators(...decorators);
 };

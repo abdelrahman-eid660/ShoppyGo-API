@@ -3,21 +3,18 @@ import { IUser } from './user.interface';
 
 export interface IBrand {
   name: string;
-
   slug: string;
-
   logo: string;
 
   createdBy: Types.ObjectId | IUser;
-
   updatedBy?: Types.ObjectId | IUser;
 
-  createdAt: Date;
+  isPublished : boolean
 
+  createdAt: Date;
   updatedAt: Date;
 
   deletedAt?: Date;
-
   restoredAt?: Date;
 }
 export interface PublicBrandResponse {

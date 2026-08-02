@@ -19,6 +19,7 @@ export interface IDecodedToken {
   decode: JwtPayload;
 }
 
-export interface ISocket extends Socket {
-  data: IAuthReq;
+export interface IAuthSocket extends Socket {
+  user: HUserDocument;
+  decode: JwtPayload;
 }

@@ -1,20 +1,17 @@
 import { Types } from "mongoose";
+import { IUser } from "./user.interface";
+import { IProduct, IProductVariant } from "./product.interface";
 
 export interface IWishlistItem {
-  productId: Types.ObjectId;
-
-  variantId?: Types.ObjectId;
-
-  addedAt: Date;
+  variantId: Types.ObjectId | IProductVariant;
+  productId?: Types.ObjectId | IProduct;
 }
 
 export interface IWishlist {
-  _id: Types.ObjectId;
-
-  userId: Types.ObjectId;
+  createdBy: Types.ObjectId | IUser;
 
   items: IWishlistItem[];
-
+  totalItems? : number
   createdAt: Date;
 
   updatedAt: Date;

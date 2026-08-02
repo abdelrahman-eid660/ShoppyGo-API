@@ -20,9 +20,6 @@ export function AtLeastOneRequired(
         validate(value: any, args: ValidationArguments) {
           const [relatedPropertyName] = args.constraints;
           const relatedValue = (args.object as any)[relatedPropertyName];
-
-          // الشرط: لازم القيمة الحالية أو قيمة الحقل التاني يكونوا موجودين
-          // لو الاتنين مش موجودين (فارغين)، الـ validation هيفشل
           const isValuePresent =
             value !== undefined && value !== null && value !== '';
           const isRelatedValuePresent =

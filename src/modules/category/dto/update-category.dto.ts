@@ -15,3 +15,8 @@ export class UpdateCategoryDto{
     @IsMongoId()
     parentId?: string | undefined;
 }
+export class CategoryIdDTO {
+    @IsMongoId()
+    categoryId! : string
+
+}

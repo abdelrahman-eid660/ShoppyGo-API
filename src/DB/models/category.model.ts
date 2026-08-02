@@ -36,6 +36,8 @@ export class Category implements ICategory {
   createdBy!: Types.ObjectId | IUser;
   @Prop({ type: Types.ObjectId, ref: 'User', index: true })
   updatedBy?: Types.ObjectId | IUser;
+  @Prop({type : Boolean , default : false})
+  isPublished!: boolean
   @Prop({ type: Date })
   deletedAt?: Date | undefined;
   @Prop({ type: Date })

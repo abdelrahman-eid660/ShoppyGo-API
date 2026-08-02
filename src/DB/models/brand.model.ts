@@ -26,9 +26,11 @@ export class Brand implements IBrand{
     @Prop({type : String})
     slug!: string;
     @Prop({type : Date})
-    deletedAt?: Date | undefined;
+    deletedAt?: Date ;
     @Prop({type : Date})
-    restoredAt?: Date | undefined;
+    restoredAt?: Date ;
+    @Prop({type : Boolean , default : false})
+    isPublished!: boolean
     @Prop({type : Date})
     createdAt!: Date;
     @Prop({type : Date})

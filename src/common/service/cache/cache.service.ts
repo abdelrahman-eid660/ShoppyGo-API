@@ -2,7 +2,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { RedisClientType, RedisDefaultModules } from 'redis';
 import { Types } from 'mongoose';
-import { RedisActionsEnum, RedisTypeEnum } from '../../enum';
+import { CacheKeyEnum, RedisActionsEnum, RedisTypeEnum } from '../../enum';
 import {
   GetParams,
   RedisKeyParams,
@@ -213,39 +213,115 @@ export class CacheService {
     return await this.client.del(targetId.toString());
   }
   //===================== socket ====================
+  // socket_Key(userId: Types.ObjectId | string) {
+  //   return `user:socket:${userId}`;
+  // }
+
+  // async addSocketId(
+  //   userId: Types.ObjectId | string,
+  //   socketId: string,
+  //   createdAt: number
+  // ) {
+  //   return await this.client.zAdd(this.socket_Key(userId), {
+  //     score: createdAt,
+  //     value: socketId,
+  //   });
+  // }
+
+  // async removeSocktId(userId: Types.ObjectId | string, socketId: string) {
+  //   return await this.client.zRem(this.socket_Key(userId), socketId);
+  // }
+
+  // async getSocktIds(userId: Types.ObjectId | string) {
+  //   return await this.client.zRange(this.socket_Key(userId), 0, -1, {
+  //     REV: true,
+  //   }); // for sorting newlest to oldest
+  // }
+  // async getSocktIdsWithDate(userId: Types.ObjectId | string) {
+  //   return await this.client.zRangeWithScores(this.socket_Key(userId), 0, -1); // for sorting oldest to newlest
+  // }
+
+  // async socktIdCount(userId: Types.ObjectId | string) {
+  //   return await this.client.zCard(this.socket_Key(userId));
+  // }
+
+  // async removeUserSocket(userId: Types.ObjectId | string) {
+  //   return await this.client.del(this.socket_Key(userId));
+  // }
   socket_Key(userId: Types.ObjectId | string) {
     return `user:socket:${userId}`;
   }
 
-  async addSocktId(
-    userId: Types.ObjectId | string,
-    socketId: string,
-    createdAt: number
-  ) {
-    return await this.client.zAdd(this.socket_Key(userId), {
-      score: createdAt,
-      value: socketId,
-    });
+  async addSocketId(userId: Types.ObjectId | string,socketId: string,) {
+    return this.client.sAdd(this.socket_Key(userId),socketId);
   }
 
-  async removeSocktId(userId: Types.ObjectId | string, socketId: string) {
-    return await this.client.zRem(this.socket_Key(userId), socketId);
+  async getSocketIds(userId: Types.ObjectId | string,) {
+    return this.client.sMembers(this.socket_Key(userId));
   }
 
-  async getSocktIds(userId: Types.ObjectId | string) {
-    return await this.client.zRange(this.socket_Key(userId), 0, -1, {
-      REV: true,
-    }); // for sorting oldest to newlest
-  }
-  async getSocktIdsWithDate(userId: Types.ObjectId | string) {
-    return await this.client.zRangeWithScores(this.socket_Key(userId), 0, -1); // for sorting oldest to newlest
+  async removeSocketId(userId: Types.ObjectId | string,socketId: string) {
+    return this.client.sRem(this.socket_Key(userId),socketId);
   }
 
-  async socktIdCount(userId: Types.ObjectId | string) {
-    return await this.client.zCard(this.socket_Key(userId));
+  async hasSocket(userId: string,socketId: string) {
+    return this.client.sIsMember(this.socket_Key(userId),socketId);
   }
 
-  async removeUserSocket(userId: Types.ObjectId | string) {
-    return await this.client.del(this.socket_Key(userId));
+  //======================= Cache ===============================
+  cacheKey(key: CacheKeyEnum, userId?: Types.ObjectId, extra?: Types.ObjectId , isPublic? : boolean): string {
+    isPublic = isPublic ? true : false
+    const userPart = userId ? userId.toString() : "GUEST";
+    const extraPart = extra ? `::${extra.toString()}` : "";
+    const chachekey = isPublic ? `PUBLIC::${key}${extraPart}` : `USER::${userPart}::${key}${extraPart}`;
+    return  chachekey
+  }
+
+  cartCacheKey(userId : string){
+    return `Cart::CACHE::${userId}`
+  }
+
+  orderCacheKey(userId : string){
+    return `Order::CACHE::${userId}`
+  }
+
+  ProfileCacheKey(userId : string | Types.ObjectId){
+    return `PROFILE::CACHE::${userId.toString()}`
+  }
+
+  async clearCacheKey({key , userId , extra , isPublic = false} : {key : CacheKeyEnum , userId? : Types.ObjectId, extra? : Types.ObjectId , isPublic? : boolean}){
+    return await this.deleteKey(this.cacheKey(key , userId , extra , isPublic))
+  }
+    //===================== Notification ====================
+  FCM_Key(userId: Types.ObjectId | string) {
+    return `user:FCM:${userId}`;
+  }
+
+  async addFCM(userId: Types.ObjectId | string, FCMToken: string) {
+    return await this.client.sAdd(this.FCM_Key(userId), FCMToken);
+  }
+
+  async removeFCM(userId: Types.ObjectId | string, FCMToken: string) {
+    return await this.client.sRem(this.FCM_Key(userId), FCMToken);
+  }
+
+  async getFCMs(userId: Types.ObjectId | string) {
+    return await this.client.sMembers(this.FCM_Key(userId));
+  }
+
+  async hasFCMs(userId: Types.ObjectId | string) {
+    return await this.client.sCard(this.FCM_Key(userId));
+  }
+
+  async removeFCMUser(userId: Types.ObjectId | string) {
+    return await this.client.del(this.FCM_Key(userId));
+  }
+  async getFCMsMulti(users: (Types.ObjectId | string)[]): Promise<string[]> {
+    const multi = this.client.multi();
+    for (const id of users) {
+      multi.sMembers(this.FCM_Key(id.toString()));
+    }
+    const results = await multi.exec();
+    return (results as unknown as string[][]).flat();
   }
 }

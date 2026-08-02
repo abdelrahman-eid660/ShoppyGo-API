@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  Inject,
   Post,
   Req,
   Res,
@@ -14,14 +15,17 @@ import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
 import type { Request, Response } from 'express';
 import { AuthenticationGuard } from './common/guard';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 const s3WriteStream = promisify(pipeline);
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly s3: S3Service
+    private readonly s3: S3Service,
+    @Inject(CACHE_MANAGER) private cacheManger: Cache
   ) {}
-
+  
   @Get()
   getHello(): string {
     return this.appService.getHello();
@@ -47,11 +51,12 @@ export class AppController {
     return await s3WriteStream(Body as NodeJS.ReadableStream, res);
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseGuards(AuthenticationGuard)
   @Post('/api/create-presigned-link')
   async createPreSignedLink(@Req() req: Request) {
     const { ContentType, OriginalName, path } = req.body;
-    if (!ContentType && !OriginalName && !path) {
+    if (!ContentType || !OriginalName || !path) {
       throw new BadRequestException('Bad Request check from your Data');
     }
     return await this.s3.createPreSignedUploadLink({
@@ -59,8 +64,9 @@ export class AppController {
       OriginalName,
       path,
     });
-    } 
+  } 
 
+  @Throttle({ default: { limit: 300, ttl: 60000 } })
   @Get('/api/pre-signed/*path')
   async getByPreSigned(@Req() req: Request) {
     const { download, fileName } = req.query as {

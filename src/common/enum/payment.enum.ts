@@ -1,6 +1,11 @@
 export enum ProviderPaymentEnum {
   STRIPE = 'stripe',
   PAYMOB = 'paymob',
+  CASH = 'cash',
+}
+export enum PaymentMethodEnum {
+  CASH = 'cash',
+  CARD = 'card',
 }
 export enum PaymentCodeResponse {
   'paymentSuccess' = 'Payment completed successfully',

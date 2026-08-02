@@ -19,7 +19,6 @@ import {
 import { IDecodedToken, IGenerateToken } from '../interface';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { TranslationService } from './translation.service';
 
 @Injectable()
 export class TokenService {
@@ -36,7 +35,6 @@ export class TokenService {
     private readonly userRepository: UserRepository,
     private readonly redis: CacheService,
     private readonly configService: ConfigService
-    // private readonly translationService: TranslationService
   ) {
     this.ACCESS_EXPIRES_IN = parseInt(configService.get('ACCESS_EXPIRES_IN')!);
     this.ADMIN_REFREASH_TOKEN_SECRET_KEY = configService.get(

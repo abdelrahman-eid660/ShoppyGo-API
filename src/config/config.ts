@@ -52,3 +52,10 @@ export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME!;
 export const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID!;
 export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY!;
 export const AWS_EXPIRES_IN = parseInt(process.env.AWS_EXPIRES_IN! || '120');
+//====================== Stripe Payment =====================
+export const STRIPE_HOOK_SECRET = process.env.STRIPE_HOOK_SECRET!;
+export const CANCEL_URL = process.env.CANCEL_URL!;
+export const SUCCESS_URL = process.env.SUCCESS_URL!;
+export const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY!;
+//====================== Settings ============================
+export const EXCHANGE_RATE_API_URL = process.env.EXCHANGE_RATE_API_URL!;

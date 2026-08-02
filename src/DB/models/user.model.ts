@@ -20,25 +20,28 @@ import { IUser } from 'src/common/interface';
 import { SecurityModule, SecurityService } from 'src/common/service/security';
 
 export type HUserDocument = HydratedDocument<IUser>;
+@Schema({ _id: false })
 export class Address {
-  @Prop()
+  @Prop({type : String , required : true})
   country!: string;
-
-  @Prop()
-  city!: string;
-
-  @Prop()
+  
+  @Prop({type : String , required : true})
+  governorate!: string;
+  
+  @Prop({type : String , required : true})
   street!: string;
-
-  @Prop()
-  postalCode!: string;
+  @Prop({type : String , required : true})
+  zone!: string;
+  
+  @Prop({type : String , required : true})
+  postalCode!: number;
 }
 
 const AddressSchema = SchemaFactory.createForClass(Address);
 @Schema({
   timestamps: true,
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
+  toJSON: { virtuals: true  , getters : true},
+  toObject: { virtuals: true , getters : true },
   optimisticConcurrency: true,
   strict: true,
   strictQuery: true,
@@ -69,14 +72,12 @@ export class User implements IUser {
     },
   })
   password!: string;
-  @Prop({ type: String })
+  @Prop({ type: String})
   phone?: string;
-  @Prop({ type: AddressSchema, required: true })
-  address!: Address;
+  @Prop({ type: AddressSchema })
+  address?: Address;
   @Prop({ type: String })
   profileImage?: string;
-  @Prop({ type: String })
-  coverImage?: string;
   @Prop({ type: String , enum : LanguageEnum , default : LanguageEnum.EN })
   lang!: LanguageEnum;
   @Prop({ type: Date })
@@ -188,4 +189,3 @@ export const UserModel = MongooseModule.forFeatureAsync([
     inject: [ConfigService, SecurityService],
   },
 ]);
-// await UserModel.global.S;

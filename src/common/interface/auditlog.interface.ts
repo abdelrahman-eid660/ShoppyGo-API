@@ -1,15 +1,19 @@
 import { Types  } from "mongoose";
+import { LogActionEnum, ReferenceModelEnum } from "../enum";
 
-export interface IAuditLog {
-  userId: Types.ObjectId;
+export interface IAuditlog {
+  actorId?: Types.ObjectId | string;
 
-  action: string;
+  isSystem? : boolean
 
-  entity: string;
+  action: LogActionEnum;
 
-  entityId: string;
+  referenceModel: ReferenceModelEnum;
 
-  metadata?: Record<string, unknown>;
+  referenceId: Types.ObjectId;
+
+  metadata?: Record<string, any>;
 
   createdAt: Date;
+  updatedAt: Date;
 }

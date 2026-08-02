@@ -31,6 +31,6 @@ export class FCMRedisService {
       multi.sMembers(this.FCM_Key(id.toString()));
     }
     const results = await multi.exec();
-    return results.flat().filter(Boolean);
+    return (results as unknown as string[][]).flat();
   }
 }

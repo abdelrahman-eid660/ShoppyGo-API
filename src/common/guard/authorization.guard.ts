@@ -13,9 +13,9 @@ import { HUserDocument } from 'src/DB/models';
 @Injectable()
 export class AuthorizationGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
-
   canActivate(context: ExecutionContext): boolean {
-    const roles = this.reflector.getAllAndOverride<RoleEnum[]>(RoleName, [
+    try {
+      const roles = this.reflector.getAllAndOverride<RoleEnum[]>(RoleName, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -29,12 +29,11 @@ export class AuthorizationGuard implements CanActivate {
 
     switch (context.getType<'http' | 'graphql' | 'ws'>()) {
       case 'graphql':
-        user = GqlExecutionContext.create(context).getContext().user;
+        user = GqlExecutionContext.create(context).getContext().req.user;
         break;
       case 'ws':
         user = context.switchToWs().getClient().user;
         break;
-
       default:
         user = context.switchToHttp().getRequest().user;
     }
@@ -64,5 +63,8 @@ export class AuthorizationGuard implements CanActivate {
     }
 
     return true;
+    } catch (error) {
+     return false 
+    }
   }
 }

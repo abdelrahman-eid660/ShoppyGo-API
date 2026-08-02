@@ -1,19 +1,19 @@
 import { Types } from "mongoose";
-import { IProduct, IProductVariant } from "./product.interface";
+import { IProductVariant } from "./product.interface";
 export interface ICartItem {
-  productId: Types.ObjectId | IProduct;
   variantId: Types.ObjectId | IProductVariant;
-
   quantity: number;
-
   priceSnapshot: number;
+  skuSnapshot: string;
+  imageSnapshot?: string;
 }
 export interface ICart {
-  userId: Types.ObjectId;
+  createdBy: Types.ObjectId;
 
   items: ICartItem[];
 
   totalPrice: number;
 
+  createdAt?: Date;
   updatedAt?: Date;
 }

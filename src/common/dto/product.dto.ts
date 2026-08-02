@@ -1,9 +1,11 @@
+import { InputType, PartialType } from '@nestjs/graphql';
 import {
   ArrayUnique,
     IsArray,
   IsInt,
   IsMongoId,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPositive,
   IsString,
@@ -16,6 +18,7 @@ import {
   IProductAttribute,
 } from 'src/common/interface';
 
+@InputType()
 export class ProductDto implements Partial<IProduct> {
   @IsString()
   @IsNotEmpty()
@@ -25,10 +28,10 @@ export class ProductDto implements Partial<IProduct> {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
-  @MaxLength(50)
+  @MaxLength(5000)
   description!: string;
   @IsPositive()
-  @IsInt()
+  @IsNumber()
   basePrice!: number;
   @IsMongoId()
   categoryId!: Types.ObjectId;
@@ -46,3 +49,4 @@ export class ProductDto implements Partial<IProduct> {
   @IsString()
   image?: string | undefined;
 }
+

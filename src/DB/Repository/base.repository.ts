@@ -1,11 +1,14 @@
 import {
+  AnyBulkWriteOperation,
   AnyKeys,
+  ClientSession,
   CreateOptions,
   DeleteResult,
   FlattenMaps,
   HydratedDocument,
   Model,
   MongooseBaseQueryOptions,
+  MongooseBulkWriteOptions,
   MongooseUpdateQueryOptions,
   PopulateOptions,
   ProjectionType,
@@ -13,7 +16,6 @@ import {
   QueryFilter,
   QueryOptions,
   QueryWithHelpers,
-  ReturnsNewDoc,
   Types,
   UpdateQuery,
   UpdateWithAggregationPipeline,
@@ -22,31 +24,13 @@ import {
 import { AggregateOptions } from 'node:sqlite';
 import { IPagination } from '../../common/interface';
 import { Injectable } from '@nestjs/common';
+import  mongodb  from "mongodb";
 @Injectable()
-// import  mongodb  from "mongodb";
 export abstract class BaseRepository<TRawDocument> {
   constructor(protected readonly model: Model<TRawDocument>) {}
-  async create({
-    data,
-  }: {
-    data: AnyKeys<TRawDocument>;
-  }): Promise<HydratedDocument<TRawDocument>>;
-  async create({
-    data,
-    options,
-  }: {
-    data: AnyKeys<TRawDocument>[];
-    options?: CreateOptions;
-  }): Promise<HydratedDocument<TRawDocument>[]>;
-  async create({
-    data,
-    options,
-  }: {
-    data: AnyKeys<TRawDocument>[] | AnyKeys<TRawDocument>;
-    options?: CreateOptions;
-  }): Promise<
-    HydratedDocument<TRawDocument>[] | HydratedDocument<TRawDocument>
-  > {
+  async create({data}: {data: AnyKeys<TRawDocument>}): Promise<HydratedDocument<TRawDocument>>;
+  async create({data,options}: {data: AnyKeys<TRawDocument>[] , options?: CreateOptions;}): Promise<HydratedDocument<TRawDocument>[]>;
+  async create({data,options}: {data: AnyKeys<TRawDocument>[] | AnyKeys<TRawDocument>,options?: CreateOptions}): Promise<HydratedDocument<TRawDocument>[] | HydratedDocument<TRawDocument>> {
     return await this.model.create(data as any, options);
   }
   async createOne({
@@ -56,7 +40,7 @@ export abstract class BaseRepository<TRawDocument> {
     data: AnyKeys<TRawDocument>;
     options?: CreateOptions;
   }): Promise<HydratedDocument<TRawDocument>> {
-    const [doc] = await this.model.create(data as any, options);
+    const [doc] = await this.model.create([data] as any, options);
     return doc as HydratedDocument<TRawDocument>;
   }
   async find({
@@ -169,8 +153,8 @@ export abstract class BaseRepository<TRawDocument> {
     filter?: QueryFilter<TRawDocument>;
     projection?: ProjectionType<TRawDocument>;
     options?: QueryOptions; // يفضل جعلها اختياري بـ ?
-    page?: number | string | undefined;
-    limit?: number | string | undefined;
+    page?: number | undefined;
+    limit?: number | undefined;
     sort?: any;
   }): Promise<IPagination<TRawDocument>> {
     // 1. تحويل القيم لأرقام صريحة والتعامل مع الـ undefined أو الأرقام السلبية
@@ -246,11 +230,11 @@ export abstract class BaseRepository<TRawDocument> {
   async updateMany({
     filter = {},
     update,
-    options,
+    options = {returnDocument : "after"},
   }: {
     filter: QueryFilter<TRawDocument>;
     update: UpdateQuery<TRawDocument> | UpdateWithAggregationPipeline;
-    options?: MongooseUpdateQueryOptions<TRawDocument> | null;
+    options?: MongooseUpdateQueryOptions<TRawDocument>& {returnDocument?: 'before' | 'after'} & {session? : ClientSession} | null;
   }): Promise<UpdateWriteOpResult> {
     return await this.model.updateMany(
       filter,
@@ -305,10 +289,12 @@ export abstract class BaseRepository<TRawDocument> {
   }
   async deleteMany({
     filter = {},
+    options = {}
   }: {
-    filter: QueryFilter<TRawDocument>;
+    filter: QueryFilter<TRawDocument>,
+    options? :  (mongodb.DeleteOptions & MongooseBaseQueryOptions<TRawDocument>) & {session? : ClientSession} | null
   }): Promise<DeleteResult> {
-    return await this.model.deleteMany(filter);
+    return await this.model.deleteMany(filter , options);
   }
   async findOneAndDelete({
     filter = {},
@@ -380,4 +366,14 @@ export abstract class BaseRepository<TRawDocument> {
   > {
     return await this.model.countDocuments(filter, options as any);
   }
+  async bulkWrite<DocContents = TRawDocument>(
+    writes: Array<AnyBulkWriteOperation<DocContents extends mongodb.Document ? DocContents : any>>,
+    options: mongodb.BulkWriteOptions & MongooseBulkWriteOptions & { ordered: boolean }
+    ): Promise<mongodb.BulkWriteResult & { mongoose?: { validationErrors: Error[] } }>;
+  async bulkWrite<DocContents = TRawDocument>(
+        writes: Array<AnyBulkWriteOperation<DocContents extends mongodb.Document ? DocContents : any>>,
+        options?: mongodb.BulkWriteOptions & MongooseBulkWriteOptions
+      ): Promise<mongodb.BulkWriteResult>{
+        return await this.model.bulkWrite(writes , options)
+      }
 }

@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsEmail,
@@ -11,8 +12,10 @@ import {
   MaxLength,
   MinLength,
   ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 import { IsMatch } from 'src/common/decorator';
+import { AddressDTO } from 'src/common/dto';
 import { GenderEnum, PermissionEnum, ProviderEnum } from 'src/common/enum';
 import type { Address } from 'src/common/interface';
 
@@ -47,6 +50,8 @@ export class SignupDTO extends LoginDTO {
   confirmPassword!: string;
 
   @IsNotEmpty()
+  @ValidateNested({each : true})
+  @Type(()=> AddressDTO)
   address! : Address
 
   @IsOptional()

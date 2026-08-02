@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -17,9 +18,8 @@ import { UserRepository } from 'src/DB/Repository';
 import {
   CacheService,
   FCMRedisService,
-  NotificationService,
+  FCMService,
   OTPService,
-  TranslationService,
 } from 'src/common/service';
 import {
   AuthCodeResonse,
@@ -28,18 +28,16 @@ import {
   ProviderEnum,
   RedisActionsEnum,
   RedisTypeEnum,
-  RoleEnum,
-  RolePermissions,
 } from 'src/common/enum';
 import { SecurityService } from 'src/common/service/security';
 import { TokenService } from 'src/common/service/token.service';
 import { IGenerateToken } from 'src/common/interface';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
-import { Permissions } from 'src/common/utils/permmisionsRoles';
 
 @Injectable()
 export class AuthenticationService {
+  private logger = new Logger()
   constructor(
     private readonly configService: ConfigService,
     private readonly userRepository: UserRepository,
@@ -47,9 +45,8 @@ export class AuthenticationService {
     private readonly redis: CacheService,
     private readonly oTPService: OTPService,
     private readonly secuirtyService: SecurityService,
-    private readonly notificationService: NotificationService,
+    private readonly fCMService: FCMService,
     private readonly tokenService: TokenService,
-    private readonly translationService: TranslationService,
   ) {}
   private async verifyGoogleAccount({
     idToken,
@@ -71,6 +68,7 @@ export class AuthenticationService {
         email: data.email,
         confirmedAt: { $exists: false },
         provider: ProviderEnum.SYSTEM,
+        deletedAt : {$exists : false}
       },
     });
     if (userExist) {
@@ -80,7 +78,7 @@ export class AuthenticationService {
     void this.oTPService.generateOtpAndSendOtpEmail({
       email: user.email,
       expiredTime: 2,
-    });
+    }).catch(error => this.logger.error(error));
     return `Check from your gmail`;
   }
   async resendConfirmEmail({ email }: ResendOTPDTO): Promise<string> {
@@ -112,7 +110,7 @@ export class AuthenticationService {
     void this.oTPService.generateOtpAndSendOtpEmail({
       email,
       expiredTime: 2,
-    });
+    }).catch(error => this.logger.error(error));
     return 'The code has been sent again, please check your email.';
   }
   async confirmEmail({ email, otp }: ConfirmOTPDTO): Promise<string> {
@@ -135,16 +133,8 @@ export class AuthenticationService {
     await user.save();
     return 'Confirm Email Successfuly';
   }
-  async login(
-    { email, password, FCM }: LoginDTO,
-    issure: string,
-    lang : string
-  ): Promise<IGenerateToken> {
-    await this.oTPService.isKeyBlocked({
-      email,
-      type: RedisTypeEnum.LOGIN,
-      action: RedisActionsEnum.BLOCKLOGIN,
-    });
+  async login( { email, password, FCM }: LoginDTO,issure: string,lang : string): Promise<IGenerateToken> {
+    await this.oTPService.isKeyBlocked({email,type: RedisTypeEnum.LOGIN,action: RedisActionsEnum.BLOCKLOGIN});
     await this.oTPService.maxKeyRequest({
       email,
       type: RedisTypeEnum.LOGIN,
@@ -170,7 +160,7 @@ export class AuthenticationService {
       const tokens = await this.FCMRedis.getFCMs(user._id);
       if (tokens?.length) {
         try {
-          void this.notificationService.sendNotifications({
+          void this.fCMService.sendNotifications({
             tokens,
             data: {
               body: `New Login At ${new Date().toLocaleString()}`,

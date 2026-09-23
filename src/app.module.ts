@@ -10,9 +10,11 @@ import { join } from 'node:path';
 import { I18nModule } from 'nestjs-i18n';
 import { S3Service } from './common/service';
 import { AuthenticationGuard } from './common/guard';
+import { GqlThrottlerGuard } from './common/guard';
 import { SharedAuthenticationModule } from './common/modules';
 import { ResponseInterceptor } from './common/interceptor';
 import {ScheduleModule} from '@nestjs/schedule'
+import { Request, Response } from 'express'
 import {
   AuthenticationModule,
   BrandModule,
@@ -90,11 +92,11 @@ import { APP_GUARD } from '@nestjs/core';
         watch: true,
       },
     }),
-     GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile : join(process.cwd(), 'src/schema.gel'),
-      graphiql : true
-    }),
+GraphQLModule.forRoot<ApolloDriverConfig>({
+  driver: ApolloDriver,
+  autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+  context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }), // <--- أضف الأنواع هنا
+}),
     CacheModule.register({
       isGlobal: true,
       ttl: 10000,
@@ -132,6 +134,6 @@ import { APP_GUARD } from '@nestjs/core';
     AnalyticsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, S3Service, AuthenticationGuard, ResponseInterceptor , {provide : APP_GUARD , useClass : ThrottlerGuard}],
+  providers: [AppService, S3Service, AuthenticationGuard, ResponseInterceptor , {provide : APP_GUARD , useClass : GqlThrottlerGuard}],
 })
 export class AppModule {}

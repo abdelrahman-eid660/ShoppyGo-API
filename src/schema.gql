@@ -1,0 +1,784 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type OneAddressResponse {
+  governorate: String
+  country: String
+  zone: String
+  postalCode: Float
+  street: String
+}
+
+type OneUserResponse {
+  _id: ID!
+  DOB: String
+  email: String
+  firstName: String
+  lastName: String
+  phone: String
+  profileImage: String
+  userName: String
+  address: OneAddressResponse
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  gender: Gender
+  lang: Language
+  role: Role
+  provider: Provider
+  permissions: [Permissions!]
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  restoredAt: String
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Language {
+  EN
+  AR
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  SUPERVISOR
+  USER
+}
+
+enum Provider {
+  SYSTEM
+  GOOGLE
+}
+
+enum Permissions {
+  BRAND_CREATE
+  BRAND_UPDATE
+  BRAND_DELETE
+  BRAND_VIEW
+  PRODUCT_CREATE
+  PRODUCT_UPDATE
+  PRODUCT_PUBLISH
+  PRODUCT_UNPUBLISH
+  PRODUCT_DELETE
+  PRODUCT_VIEW
+  CATEGORY_CREATE
+  CATEGORY_UPDATE
+  CATEGORY_DELETE
+  CATEGORY_VIEW
+  ORDER_CREATE
+  ORDER_UPDATE
+  ORDER_CHECKOUT
+  ORDER_CONFIRM
+  ORDER_CANCEL
+  ORDER_REFUND
+  ORDER_REFUND_REQUEST
+  ORDER_REJECT_REQUEST
+  ORDER_VIEW
+  ACCOUNT_DELETE_SELF
+  ACCOUNT_UPDATE_SELF
+  USER_VIEW
+  USER_UPDATE
+  USER_DELETE
+  USER_BAN
+  INVENTORY_VIEW
+  INVENTORY_UPDATE
+  INVENTORY_ADD
+  INVENTORY_DELETE
+  INVENTORY_MOVEMENT_VIEW
+  INVENTORY_MOVEMENT_DELETE
+  STOCK_ADJUSTMENT_VIEW
+  STOCK_ADJUSTMENT_UPDATE
+  STOCK_ADJUSTMENT_DELETE
+  STOCK_ADJUSTMENT_CREATE
+  SUPPLIER_VIEW
+  SUPPLIER_UPDATE
+  SUPPLIER_DELETE
+  SUPPLIER_ADD
+  PRODUCT_SUPPLIER_VIEW
+  PRODUCT_SUPPLIER_UPDATE
+  PRODUCT_SUPPLIER_DELETE
+  PRODUCT_SUPPLIER_ADD
+  PURCHASE_PRODUCT_VIEW
+  PURCHASE_PRODUCT_UPDATE
+  PURCHASE_PRODUCT_DELETE
+  PURCHASE_PRODUCT_ADD
+  BRAND_SUPPLIER_VIEW
+  BRAND_SUPPLIER_UPDATE
+  BRAND_SUPPLIER_DELETE
+  BRAND_SUPPLIER_ADD
+  REVIEW_CREATE
+  REVIEW_UPDATE
+  REVIEW_DELETE
+  REVIEW_VIEW
+  WAREHOUSE_CREATE
+  WAREHOUSE_UPDATE
+  WAREHOUSE_DELETE
+  WAREHOUSE_VIEW
+  WAREHOUSE_TRANSFORM_CREATE
+  WAREHOUSE_TRANSFORM_UPDATE
+  WAREHOUSE_TRANSFORM_DELETE
+  WAREHOUSE_TRANSFORM_VIEW
+  COUPON_CREATE
+  COUPON_UPDATE
+  COUPON_VIEW
+  SHIPPING_ZONE_CREATE
+  SHIPPING_ZONE_UPDATE
+  SHIPPING_ZONE_DELETE
+  SHIPPING_ZONE_VIEW
+  CART_VIEW
+  CART_ADD_ITEM
+  CART_REMOVE_ITEM
+  CART_UPDATE_ITEM
+  CART_CLEAR
+  PAYMENT_VIEW
+  AUDIT_LOG_VIEW
+  AUDIT_LOG_REMOVE
+  FINANCIAL_MANAGE
+  ANALYTICES_MANAGE
+  ANALYTICES_VIEW
+  REQUEST_REFUND
+  REPORTS_VIEW
+  SETTINGS_UPDATE
+  SETTINGS_VIEW
+}
+
+type OneBrandResponse {
+  _id: ID
+  name: String
+  logo: String
+  slug: String
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  deletedAt: String
+  restoredAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type OneCategoryResponse {
+  _id: ID!
+  name: String!
+  slug: String
+  image: String
+  ancestors: [OneCategoryResponse!]
+  parentId: OneCategoryResponse
+  createdBy: OneUserResponse!
+  updatedBy: OneUserResponse
+  deletedAt: String
+  restoredAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type OneProductAttributeResponse {
+  key: String
+  label: String
+  unit: String
+  value: String
+}
+
+type OneProductResponse {
+  _id: ID
+  title: String
+  description: String
+  gallery: [String!]
+  image: String
+  brandId: OneBrandResponse
+  categoryId: OneCategoryResponse
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  reviewCount: Int
+  basePrice: Float
+  rating: Int
+  attributes: [OneProductAttributeResponse!]
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  restoredAt: String
+}
+
+type PaginationInfo {
+  currentPage: Int
+  limit: Int
+  totalDocs: Int
+  totalPages: Int
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+type PaginationProductsResponse {
+  docs: [OneProductResponse!]!
+  pagination: PaginationInfo!
+}
+
+type GetProductResponse {
+  product: OneProductResponse!
+  variants: [OneProductVariantsResponse!]!
+}
+
+type PaginationProductVariantsResponse {
+  docs: [OneProductVariantsResponse!]!
+  pagination: PaginationInfo!
+}
+
+type OneProductVariantsResponse {
+  _id: ID
+  slug: String
+  sku: String
+  description: String
+  images: [String!]
+  productId: OneProductResponse
+  brandId: OneBrandResponse
+  categoryId: OneCategoryResponse
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  price: Float
+  attributes: [OneProductAttributeResponse!]
+  isPublished: Boolean
+  isDefualt: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  restoredAt: String
+  rating: Float
+  reviewCount: Int
+  stock: Int
+}
+
+type OneInventoryResponse {
+  _id: ID!
+  productVariantId: OneProductVariantsResponse!
+  createdBy: OneUserResponse!
+  updatedBy: OneUserResponse
+  sold: Float!
+  quantity: Float!
+  reserved: Float!
+  availableQuantity: Float!
+  createdAt: String
+  updatedAt: String
+}
+
+type OneWarehouseResponse {
+  _id: ID
+  name: String
+  slug: String
+  coverImage: String
+  code: String
+  phone: [String!]
+  notes: String
+  address: OneAddressResponse
+  manager: OneUserResponse
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  isActive: Boolean
+  isMain: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+type OneSupplierResponse {
+  _id: ID
+  name: String
+  email: String
+  phone: [String!]
+  address: OneAddressResponse
+  isActive: Boolean
+  rating: Float
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type PurchaseItemsResponse {
+  costPrice: Float
+  currencySnapshot: SharedCurrency
+  orderedQuantity: Int
+  productVariantId: OneProductVariantsResponse
+  receivedQuantity: Int
+  remainingQuantity: Int
+  skuSnapshot: String
+}
+
+enum SharedCurrency {
+  EGP
+  USD
+  EUR
+}
+
+type OnePurchaseProductResponse {
+  _id: ID!
+  supplierId: OneSupplierResponse
+  wareHouseId: OneWarehouseResponse
+  items: [PurchaseItemsResponse!]
+  totalCost: Float
+  status: PurchaseProcessStatus
+  supplierNameSnapshot: String
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  expectedAt: String
+  receivedAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+enum PurchaseProcessStatus {
+  PENDING
+  ORDERED
+  RECEIVED
+  CANCELLED
+  PARTIALLY_RECEIVED
+}
+
+type StockAdjustmentItemsResponse {
+  productVariantId: OneProductVariantsResponse
+  skuSnapshot: String
+  stockStatus: StockStatus
+  expectedQuantity: Float!
+  countedQuantity: Float!
+  difference: Float!
+  reason: StockAdjustmentReason
+  customeResone: String
+  notes: String
+}
+
+enum StockStatus {
+  BALANCED
+  Inventory_overage
+  Inventory_shortage
+}
+
+enum StockAdjustmentReason {
+  DAMAGED
+  LOST
+  FOUND
+  EXPIRED
+  THEFT
+  COUNTING_ERROR
+  OTHER
+  BALANCED
+}
+
+type OneMessageResponse {
+  message: String!
+}
+
+type OneOrderItem {
+  variantId: OneProductVariantsResponse
+  warehouseId: OneWarehouseResponse
+  imageSnapshot: String
+  skuSnapshot: String!
+  priceSnapshot: Float!
+  quantity: Float!
+  requestReturnQuantity: Float
+  refundedQuantity: Float
+  subTotal: Float!
+}
+
+type OneOrderResponse {
+  _id: ID!
+  orderNumber: String!
+  intentId: String
+  stripeSessionId: String
+  stripeSessionUrl: String
+  items: [OneOrderItem!]!
+  subtotalAmount: Float!
+  shippingAmount: Float!
+  totalAmount: Float!
+  status: OrderStatus!
+  paymentStatus: PaymentStatus!
+  paymentMethod: PaymentMethod!
+  currency: Currency!
+  shippingAddress: OneAddressResponse!
+  couponId: ID
+  couponCode: String
+  discountAmount: Float
+  confirmedBy: OneUserResponse
+  confirmedAt: DateTime
+  canceledBy: OneUserResponse
+  canceledAt: DateTime
+  cancelReason: CancelResone
+  cancelReasonOther: String
+  canceledBySystem: Boolean
+  deliveredAt: DateTime
+  refundedAt: DateTime
+  refundReason: RefundResone
+  refundType: RefundType
+  refundAmount: Float
+  refundReasonOther: String
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  createdAt: DateTime!
+  updateAt: DateTime
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  FAILED
+  RETURN_REQUESTED
+  SHIPPED
+  PARTIALLY_RETURNED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  AUTHORIZED
+  PAID
+  FAILED
+  CANCELLED
+  REFUND_REQUESTED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+}
+
+enum Currency {
+  EGP
+  USD
+}
+
+enum CancelResone {
+  CUSTOMER_CHANGED_MIND
+  ORDER_PLACED_BY_MISTAKE
+  FOUND_BETTER_PRICE
+  DELIVERY_TAKING_TOO_LONG
+  SHIPPING_COST_TOO_HIGH
+  PAYMENT_FAILED
+  DUPLICATE_ORDER
+  OUT_OF_STOCK
+  SELLER_UNABLE_TO_FULFILL
+  INCORRECT_SHIPPING_ADDRESS
+  PRODUCT_NO_LONGER_NEEDED
+  FRAUD_SUSPECTED
+  OTHER
+}
+
+enum RefundResone {
+  DAMAGED_PRODUCT
+  DEFECTIVE_PRODUCT
+  WRONG_ITEM_RECEIVED
+  MISSING_ITEMS
+  ITEM_NOT_AS_DESCRIBED
+  QUALITY_NOT_AS_EXPECTED
+  SIZE_OR_VARIANT_ISSUE
+  LATE_DELIVERY
+  ORDER_NOT_RECEIVED
+  DUPLICATE_PAYMENT
+  CUSTOMER_REQUEST
+  CANCELLED_ORDER
+  FRAUD_SUSPECTED
+  OTHER
+}
+
+enum RefundType {
+  FULL
+  PARTIAL
+}
+
+type CheckoutOrderResponse {
+  order: OneOrderResponse!
+  payment_url: String
+}
+
+type OrderMessageResponse {
+  message: String!
+}
+
+type OneFinancialReviewResponse {
+  _id: ID!
+  warehouseId: OneWarehouseResponse!
+  referenceId: FinancialReference
+  referenceModel: ReferenceModel!
+  createdBy: OneUserResponse
+  isSystem: Boolean
+  category: Category!
+  source: Source!
+  amount: Float!
+  costOfGoodsSold: Float
+  currency: SharedCurrency!
+  discountAmountSnapshot: Float
+  shippingCostSnapshot: Float
+  notes: String
+  createdAt: String!
+  updatedAt: String
+}
+
+union FinancialReference = OneOrderResponse | OnePurchaseProductResponse | OneStockAdjustmentResponse
+
+type OneStockAdjustmentResponse {
+  _id: ID!
+  warehouseId: OneWarehouseResponse!
+  warehouseNameSnapshot: String
+  items: [StockAdjustmentItemsResponse!]!
+  status: SharedStatus!
+  notes: String!
+  createdBy: OneUserResponse
+  updatedBy: OneUserResponse
+  approvedBy: OneUserResponse
+  approvedAt: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+enum SharedStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+  RECEVIED
+  REJECTED
+}
+
+enum ReferenceModel {
+  PURCHASE_PRODUCTS
+  ORDER
+  REFUND
+  TRANSFER
+  WAREHOUSE
+  STOCK_ADJUSTMENT
+  INITIAL_STOCK
+  PAYMENT
+  INVENTORY
+  COUPON
+  PRODUCT_VARIANT
+  PRODUCT
+  CART
+  BRAND
+  CATEGORY
+  SUPPLIER
+  BRAND_SUPPLIER
+  PRODUCT_SUPPLIER
+  SHIPPING_ZONE
+  SETTINGS
+  REVIEW
+  FINANCIAL_REVIEW
+}
+
+enum Category {
+  REVENUE
+  EXPENSE
+  LOSS
+  REFUND
+}
+
+enum Source {
+  ORDER
+  PURCHASE
+  INVENTORY_AUDIT
+  OVERHEAD
+}
+
+type SummaryFinancialResposne {
+  totalRevenue: Float
+  totalExpenses: Float
+  purchaseExpenses: Float
+  inventoryAdjustmentLosses: Float
+  totalCOGS: Float
+  netProfit: Float
+}
+
+type FinancialDataResposne {
+  _id: ID!
+  amount: Float!
+  currency: SharedCurrency!
+  category: Category!
+  source: Source!
+  costOfGoodsSold: Float
+  subRevenue: Float
+  notes: String
+  createdAt: String
+  warehouse: OneWarehouseResponse
+}
+
+type PageSummaryResponse {
+  pageRevenue: Float!
+  pageExpenses: Float!
+}
+
+type AllFinancialReviewResponse {
+  summary: SummaryFinancialResposne
+  pagination: PaginationInfo!
+  data: [FinancialDataResposne!]
+  pageSummary: PageSummaryResponse!
+}
+
+type GetProductsBySalesResponse {
+  _id: ID!
+  variantId: ID!
+  totalQuantitySold: Float!
+  totalRevenue: Float!
+  skuSnapshot: String!
+  imageSnapshot: String
+  currentPrice: Float!
+}
+
+type GetZeroSalesProductsResponse {
+  _id: ID!
+  sku: String!
+  price: Float!
+  totalQuantitySold: Int!
+}
+
+type GetCustomersByActivityResponse {
+  userId: ID!
+  totalOrdersCount: Int!
+  totalSpent: Int!
+  lastOrderDate: DateTime!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+}
+
+type getUsersWithZeroOrdersResponse {
+  _id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  createdAt: DateTime!
+}
+
+type GetSalesOverviewMetricsResponse {
+  monthlyOrdersCount: Int!
+  monthlyRevenue: Float!
+  todayOrdersCount: Int!
+  todayRevenue: Float!
+  monthlyAOV: Float!
+}
+
+type GetCategoriesDemandMetricsResponse {
+  categoryId: ID!
+  name: String!
+  image: String!
+  quantitySold: Int!
+  revenue: Float!
+}
+
+type GetBrandsDemandMetricsResponse {
+  brandId: ID!
+  name: String!
+  image: String!
+  quantitySold: Int!
+  revenue: Float!
+}
+
+type Query {
+  allProducts(page: Int, limit: Int, sort: SortProduts, search: String): PaginationProductsResponse!
+  allProductsArchive(page: Int, limit: Int, sort: SortProduts, search: String): PaginationProductsResponse!
+  getProduct(productId: ID!): GetProductResponse!
+  getProductsByBrand(brandId: ID!): [OneProductResponse!]!
+  getProductsByCategory(categoryId: ID!): [OneProductResponse!]!
+  allProductVariants(page: Int, limit: Int, sort: SortProduts, search: String): PaginationProductVariantsResponse!
+  allProductVariantsArchive(page: Int, limit: Int, sort: SortProduts, search: String): PaginationProductVariantsResponse!
+  getProductVariant(productVariantId: ID!): OneInventoryResponse!
+  approve(stockAdjustmentId: ID!): OneMessageResponse!
+  checkout(orderId: ID!): CheckoutOrderResponse!
+  confirmOrder(orderId: ID!): OrderMessageResponse!
+  shipped(orderId: ID!): OrderMessageResponse!
+  paidOrder(orderId: ID!): OrderMessageResponse!
+  getOrder(orderId: ID!): OneOrderResponse!
+  getOrders(page: Int, limit: Int, sort: SortProduts, search: String, status: OrderStatus, paymentStatus: PaymentStatus, paymentMethod: PaymentMethod): [OneOrderResponse!]!
+  allFinancialReviews(page: Int, limit: Int, sort: SortProduts, search: String, warehouseId: ID, category: Category, source: Source, startDate: String, endDate: String): AllFinancialReviewResponse!
+  FinancialReview(financialId: ID!): OneFinancialReviewResponse!
+  getProductsBySales(sortType: Int, limit: Int): [GetProductsBySalesResponse!]!
+  getZeroSalesProducts(limit: Int): [GetZeroSalesProductsResponse!]!
+  getCustomersByActivity(sortType: Int, limit: Int): [GetCustomersByActivityResponse!]!
+  getUsersWithZeroOrders(limit: Int): [getUsersWithZeroOrdersResponse!]!
+  getNewCustomersCount: Int!
+  getSalesOverviewMetrics: GetSalesOverviewMetricsResponse!
+  getCategoriesDemandMetrics(sortType: Int, limit: Int): [GetCategoriesDemandMetricsResponse!]!
+  getBrandsDemandMetrics(sortType: Int, limit: Int): [GetBrandsDemandMetricsResponse!]!
+}
+
+enum SortProduts {
+  NEWEST
+  OLDEST
+  NAME_ASC
+  NAME_DESC
+  CODE_ASC
+  CODE_DESC
+  PRICE_ASC
+  PRICE_DESC
+  DISCOUNTAMOUNT_ASC
+  DISCOUNTAMOUNT_DESC
+  REFUND_AMOUNT_ASC
+  REFUND_AMOUNT_DESC
+  COUPON_VALUE_ASC
+  COUPON_VALUE_DESC
+  MINORDERQUANTITY_ASC
+  MINORDERQUANTITY_DESC
+  SKU_ASC
+  SKU_DESC
+  TITLE_ASC
+  TITLE_DESC
+  UPDATED_DESC
+}
+
+type Mutation {
+  receivedPurchaseProducts(purchaseProductId: ID!, input: ReceivedDTO!): OnePurchaseProductResponse!
+  createOrder(couponCode: String, currency: Currency!, paymentMethod: PaymentMethod!, shippingAddress: AddressInput!): OneOrderResponse!
+  refundOrderRequest(orderId: ID!, items: [RefundItemInput!]!, refundReason: RefundResone!, refundReasonOther: String): OrderMessageResponse!
+  rejectRefundRequest(orderId: ID!, rejectionReason: RejectionReason!, rejectReasonOther: String): OrderMessageResponse!
+  refundOrder(orderId: ID!, cashMethod: CashReturnMethod, receiptUrl: String): OrderMessageResponse!
+}
+
+input ReceivedDTO {
+  items: [ReceivedItemsDTO!]!
+}
+
+input ReceivedItemsDTO {
+  receivedQuantity: Int!
+  productVariantId: ID!
+}
+
+input AddressInput {
+  governorate: String
+  country: String
+  zone: String
+  postalCode: Int
+  street: String
+}
+
+input RefundItemInput {
+  variantId: String!
+  refundedQuantity: Float!
+}
+
+enum RejectionReason {
+  EXPIRED_POLICY
+  NOT_DELIVERED_YET
+  ITEM_DAMAGED_BY_CUSTOMER
+  MISSING_TAGS_OR_PACKAGING
+  ITEM_USED_OR_ALTERED
+  NON_RETURNABLE_ITEM
+  INSUFFICIENT_EVIDENCE
+  INVALID_REASON
+  PRICE_DIFFERENCE
+  OTHER
+}
+
+enum CashReturnMethod {
+  HAND_BY_HAND
+  MOBILE_WALLET
+  INSTAPAY_BANK
+  STORE_CREDIT
+}

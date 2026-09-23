@@ -77,7 +77,7 @@ export class AuthenticationService {
     const user = await this.userRepository.create({ data });
     void this.oTPService.generateOtpAndSendOtpEmail({
       email: user.email,
-      expiredTime: 2,
+      expiredTime: 1,
     }).catch(error => this.logger.error(error));
     return `Check from your gmail`;
   }

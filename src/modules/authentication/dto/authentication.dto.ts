@@ -52,10 +52,10 @@ export class SignupDTO extends LoginDTO {
   @IsNotEmpty()
   @ValidateNested({each : true})
   @Type(()=> AddressDTO)
-  address! : Address
+  address? : Address
 
   @IsOptional()
-  @Matches(/^(02|2|\+20)?01[0-25]\d{8}$/)
+  @Matches(/^((?:\+20|0020|20|0)?1[0125]\d{8}|(?:\+966|00966|966|0)?5\d{8}|(?:\+974|00974|974)?[3567]\d{7})$/)
   phone?: string;
 
   @IsOptional()
@@ -89,7 +89,7 @@ export class ForgetPasswordDTO {
   @IsEmail()
   email?: string;
 
-  @Matches(/^(02|2|\+20)?01[0-25]\d{8}$/)
+  @Matches(/^((?:\+20|0020|20|0)?1[0125]\d{8}|(?:\+966|00966|966|0)?5\d{8}|(?:\+974|00974|974)?[3567]\d{7})$/)
   phone?: string;
 }
 export class SignWhitGoogleDTO {

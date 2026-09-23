@@ -7,7 +7,6 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CommonCodeResponse } from '../enum/common.enum';
-import { GqlExecutionContext } from '@nestjs/graphql';
 
 export interface Response<T> {
   data: T;

@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
 import { GenderEnum, LanguageEnum, PermissionEnum, ProviderEnum, RoleEnum } from '../enum';
 export type Address = {
-    country: string;
-    governorate: string;
-    zone: string;
-    street: string;
-    postalCode: number;
+  country: string;
+  governorate: string;
+  zone: string;
+  street: string;
+  postalCode: number;
   } 
 export interface IUser {
   firstName: string;

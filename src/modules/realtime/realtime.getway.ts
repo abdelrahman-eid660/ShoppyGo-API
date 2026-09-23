@@ -15,7 +15,9 @@ import { Server, Socket } from 'socket.io';
 import { Auth } from 'src/common/decorator';
 import { PermissionEnum, RoleEnum } from 'src/common/enum';
 import { CacheService, TokenService } from 'src/common/service';
-@WebSocketGateway(3001, { cors: '*' })
+import { TokenTypeEnum } from 'src/common/enum';
+import { parseCookie } from 'cookie';
+@WebSocketGateway(3001, { cors: '*'  , credentials: true})
 export class RealtimeGetway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -29,35 +31,64 @@ export class RealtimeGetway
     console.log(`Connected successfuly with sockt io ✅✅✅`);
   }
 
-  async handleConnection(client: Socket, ...args: any[]) {
-    console.log(`Connected with clinet id ${client.id} ❤️`);
-    try {
-      const token =
-        client.handshake.auth?.authorization ||
-        client.handshake.headers?.authorization;
-      if (!token) {
-        throw new NotFoundException('Authentication error: Token missing');
-      }
-      const { user, decode } = await this.tokenService.decodedToken({ token });
-      client.data = { user, decode };
-      await this.redis.addSocketId(user._id, client.id);
-      client.join(`user:${user._id.toString()}`);
-      if (user.role) {
-        client.join(`role:${user.role}`);
-      }
-      if (Array.isArray(user.permissions) && user.permissions.length > 0) {
-        for (const permission of user.permissions) {
-            client.join(`permission:${permission}`)
-        }
-      }
-      console.log(
-        `✅ User ${user._id.toString()} (${user.role}) connected to socket`
-      );
-    } catch (error: any) {
-      client.emit('custom_error', error.message);
-      client.disconnect();
+async handleConnection(client: Socket) {
+  console.log(`Connected with client id ${client.id} ❤️`);
+
+  try {
+    const cookies = parseCookie(client.handshake.headers.cookie ?? '');
+
+    const token =
+      cookies.accessToken ||
+      client.handshake.auth?.authorization ||
+      client.handshake.headers?.authorization;
+
+    if (!token) {
+      throw new NotFoundException('Authentication error: Token missing');
     }
+
+    const credential = token.startsWith('Bearer ')
+      ? token.slice(7)
+      : token;
+
+    const { user, decode } =
+      await this.tokenService.decodedToken({
+        token: credential,
+        tokenType: TokenTypeEnum.ACCESS,
+      });
+
+    client.data = { user, decode };
+
+    await this.redis.addSocketId(
+      user._id.toString(),
+      client.id,
+    );
+
+    client.join(`user:${user._id.toString()}`);
+
+    if (user.role) {
+      client.join(`role:${user.role}`);
+    }
+
+    if (
+      Array.isArray(user.permissions) &&
+      user.permissions.length > 0
+    ) {
+      for (const permission of user.permissions) {
+        client.join(`permission:${permission}`);
+      }
+    }
+
+    console.log(
+      `✅ User ${user._id.toString()} (${user.role}) connected to socket`,
+    );
+
+  } catch (error: any) {
+    console.error('❌ Socket authentication error:', error.message);
+
+    client.emit('custom_error', error.message);
+    client.disconnect();
   }
+}
 
   async handleDisconnect(client: Socket) {
     console.log(`Disconnected client ${client.id} ❌`);

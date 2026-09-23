@@ -16,7 +16,7 @@ import {
   SignWhitGoogleDTO,
 } from './dto/authentication.dto';
 import type { Request, Response } from 'express';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 @Controller('auth')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
@@ -80,7 +80,7 @@ export class AuthenticationController {
     return { status, message: 'Login Successfully' };
   }
   @Throttle({ default: { limit: 5, ttl: 60000 } })
-  @Post('signin-with-gmail')
+  @Post('login-with-gmail')
   async loginWithGmail(@Body()body: SignWhitGoogleDTO,@Req()req: Request,@Res({ passthrough: true })res: Response ): Promise<{status? : number , message : string}> {
     const tokens = await this.authenticationService.loginWithGmail( body,`${req.protocol}://${req.host}`)
     res.cookie('accessToken', tokens.accessToken, {

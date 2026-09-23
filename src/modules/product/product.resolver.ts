@@ -10,7 +10,8 @@ import { CacheKeyEnum, RoleEnum } from "src/common/enum";
 import { ObjectIdPipe } from "src/common/pipe";
 import { Types } from "mongoose";
 import { Throttle } from "@nestjs/throttler";
-
+import { UseGuards } from '@nestjs/common';
+import {GqlThrottlerGuard} from 'src/common/guard'
 @Resolver()
 export class ProductResolver { 
     constructor(private readonly productService : ProductService){}
@@ -20,6 +21,7 @@ export class ProductResolver {
     @CacheKey(CacheKeyEnum.PRODUCTS)
     @UseInterceptors(CustomeCacheInterceptor)
     @Throttle({ default: { limit: 200, ttl: 60000 } })
+    @UseGuards(GqlThrottlerGuard)
     async allProducts(
         @Args() args : PaginationGQLDTO,
         @User() user? : HUserDocument

@@ -15,10 +15,12 @@ export class CustomeCacheInterceptor implements NestInterceptor {
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler<any>): Promise<Observable<any>> {
+    // إصلاح ترتيب Reflector ليكون Handler أولاً ثم Class دائماً
     const ttl: number = this.reflector.getAllAndOverride<number>(ttlName, [context.getHandler(), context.getClass()]) ?? 86400;
     const parse: boolean = this.reflector.getAllAndOverride<boolean>(parseName, [context.getHandler(), context.getClass()]) ?? true;
-    const cacheValue = this.reflector.getAllAndOverride<string>(CacheKeyName, [context.getClass(), context.getHandler()]);
-    const isPublicDecorator = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(),context.getClass()]);
+    const cacheValue = this.reflector.getAllAndOverride<string>(CacheKeyName, [context.getHandler(), context.getClass()]);
+    const isPublicDecorator = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
+
     if (!cacheValue) return next.handle();
 
     let userId: string = 'GUEST';
@@ -30,9 +32,11 @@ export class CustomeCacheInterceptor implements NestInterceptor {
         const gqlCtx = graphqlContext.getContext();
         const args = graphqlContext.getArgs();
         userId = gqlCtx?.req?.user?._id?.toString() ?? 'GUEST';
-        extraKey = args?.productId || args?.productVariantId || args?.orderId || args.brandId || args.categoryId;
-        if (!extraKey && Object.keys(args).length > 0) {
-          extraKey = new URLSearchParams(args as Record<string, string>).toString();
+
+        // استخراج معرف صريح أو تحويل Arguments لـ JSON مستقر ومتسلسل
+        extraKey = args?.productId || args?.productVariantId || args?.orderId || args?.brandId || args?.categoryId;
+        if (!extraKey && args && Object.keys(args).length > 0) {
+          extraKey = JSON.stringify(args);
         }
         break;
       }
@@ -41,7 +45,10 @@ export class CustomeCacheInterceptor implements NestInterceptor {
         const client = context.switchToWs().getClient();
         const wsData = context.switchToWs().getData();
         userId = client?.user?._id?.toString() ?? 'GUEST';
-        extraKey = wsData?.productId || wsData?.productVariantId || wsData?.orderId || wsData.brandId || wsData.categoryId;
+        extraKey = wsData?.productId || wsData?.productVariantId || wsData?.orderId || wsData?.brandId || wsData?.categoryId;
+        if (!extraKey && wsData && Object.keys(wsData).length > 0) {
+          extraKey = JSON.stringify(wsData);
+        }
         break;
       }
 
@@ -52,7 +59,7 @@ export class CustomeCacheInterceptor implements NestInterceptor {
         const query = req.query || {};
         extraKey = params.productId || params.productVariantId || params.orderId || params.brandId || params.categoryId;
         if (!extraKey && Object.keys(query).length > 0) {
-          extraKey = new URLSearchParams(query as Record<string, string>).toString();
+          extraKey = JSON.stringify(query);
         }
         break;
       }
@@ -64,16 +71,21 @@ export class CustomeCacheInterceptor implements NestInterceptor {
       cacheValue.includes('GET_PRDOCUTS_BY_BRAND') || cacheValue.includes('GET_PRDOCUTS_BY_CATEGORY') || userId === 'GUEST';
     
     const userPrefix = isPublicCache ? 'PUBLIC' : `USER::${userId}`;
-    const cacheKey = extraKey ? `${userPrefix}::${cacheValue}::${extraKey}` : `${userPrefix}::${cacheValue}` ;
-    const data = await this.redis.get({ key: cacheKey, parse });
-    if (data) {
-      return of(data);
+    const cacheKey = extraKey ? `${userPrefix}::${cacheValue}::${extraKey}` : `${userPrefix}::${cacheValue}`;
+    
+    // محاولة جلب البيانات من Redis
+    const cachedData = await this.redis.get({ key: cacheKey, parse });
+    if (cachedData !== null && cachedData !== undefined) {
+      return of(cachedData);
     }
 
     return next.handle().pipe(
-      tap(async (value) => {
-        if (value) {
-          await this.redis.set({ key: cacheKey, value, ttl, parse });
+      tap((value) => {
+        if (value !== undefined && value !== null) {
+          // حفظ الكاش بأسلوب غير معطل للـ Stream مع معالجة الأخطاء
+          this.redis.set({ key: cacheKey, value, ttl, parse }).catch((err) => {
+            console.error(`Failed to set Redis cache for key ${cacheKey}:`, err);
+          });
         }
       })
     );

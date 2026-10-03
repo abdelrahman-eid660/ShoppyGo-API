@@ -8,7 +8,12 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(helmet({crossOriginResourcePolicy: { policy: 'cross-origin' }}));
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
   app.use(cookieParser());
   app.enableCors({origin : "http://localhost:4200" , credentials: true})
   app.use("/order/webhook" , express.raw({type : 'application/json'}))
@@ -18,7 +23,7 @@ async function bootstrap() {
       transform : true,
       stopAtFirstError: true,
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false,
     })
   );
   
